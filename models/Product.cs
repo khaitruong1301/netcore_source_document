@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace netflixdemo.Models;
+namespace api.Models;
 
 public partial class Product
 {

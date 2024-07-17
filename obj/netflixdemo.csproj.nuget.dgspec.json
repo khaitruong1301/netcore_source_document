@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/netflixdemo.csproj": {}
+    "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/api/api.csproj": {}
   },
   "projects": {
-    "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/netflixdemo.csproj": {
+    "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/api/api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/netflixdemo.csproj",
-        "projectName": "netflixdemo",
-        "projectPath": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/netflixdemo.csproj",
+        "projectUniqueName": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/api/api.csproj",
+        "projectName": "api",
+        "projectPath": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/api/api.csproj",
         "packagesPath": "/Users/khai/.nuget/packages/",
-        "outputPath": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/obj/",
+        "outputPath": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/khai/.nuget/NuGet/NuGet.Config"

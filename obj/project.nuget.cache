@@ -2,7 +2,7 @@
   "version": 2,
   "dgSpecHash": "d+E6I1K6flQ=",
   "success": true,
-  "projectFilePath": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/netflixdemo.csproj",
+  "projectFilePath": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/api/api.csproj",
   "expectedPackageFiles": [
     "/Users/khai/.nuget/packages/azure.core/1.35.0/azure.core.1.35.0.nupkg.sha512",
     "/Users/khai/.nuget/packages/azure.identity/1.10.3/azure.identity.1.10.3.nupkg.sha512",

@@ -1,6 +1,6 @@
 // Để làm việc với các lớp và phương thức giúp xây dựng ứng dụng web
 using Microsoft.EntityFrameworkCore;
-using netflixdemo.Data;
+using api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 // Thêm các service vào container.

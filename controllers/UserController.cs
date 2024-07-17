@@ -1,11 +1,11 @@
 // Thư viện cung cấp các class và phương thức MVC như Controller và các thuộc tính như Route, HttpGet, HttpPost, v.v.
 using Microsoft.AspNetCore.Mvc;
-using netflixdemo.Models; // Chỉnh lại nếu namespace đúng là models
+using api.Models; // Chỉnh lại nếu namespace đúng là models
 // Thư viện hỗ trợ các hàm cho kiểu dữ liệu collection (List, Dictionary, IEnumerable, v.v.)
 using System.Collections.Generic;
 using System.Linq;
 
-namespace netflixdemo.Controllers
+namespace api.Controllers
 {
     [Route("api/users")]
     [ApiController]   
