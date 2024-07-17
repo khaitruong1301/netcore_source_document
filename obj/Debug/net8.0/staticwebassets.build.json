@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "PLdASQjCyn7ai3TUFDy7kfnlWPKzQkoav3Vf5RlvNLw=",
+  "Source": "netflixdemo",
+  "BasePath": "_content/netflixdemo",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "netflixdemo/wwwroot",
+      "Source": "netflixdemo",
+      "ContentRoot": "/Volumes/Cybersoft/dotnetCommandVsCode/dotnet_api/netflixdemo/wwwroot/",
+      "BasePath": "_content/netflixdemo",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
