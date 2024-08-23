@@ -1,90 +1,163 @@
-// Thư viện cung cấp các class và phương thức MVC như Controller và các thuộc tính như Route, HttpGet, HttpPost, v.v.
-using Microsoft.AspNetCore.Mvc;
-using api.Models; // Chỉnh lại nếu namespace đúng là models
-// Thư viện hỗ trợ các hàm cho kiểu dữ liệu collection (List, Dictionary, IEnumerable, v.v.)
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using api.models;
+using api.Models.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace api.Controllers
 {
-    [Route("api/users")]
-    [ApiController]   
-    public class UserController : ControllerBase 
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+
+    public class UsersController : ControllerBase
     {
+        private readonly ApplicationContext _context;
 
-        public static List<User> lstUser = new List<User>();
-
-        public UserController()
+        public UsersController(ApplicationContext context)
         {
-            // Initialize the list with some users if it's empty
-            if (!lstUser.Any())
-            {
-                for (int id = 1; id < 6; id++)
-                {
-                    User us = new User
-                    {
-                        Id = id,
-                        Password = "123456789",
-                        Email = $"user{id}@gmail.com",
-                        Phone = $"09090909{id}"
-                    };
-                    lstUser.Add(us);
-                }
-            }
+            _context = context;
         }
 
-        [HttpGet("getall")]
-        public IEnumerable<User> GetAll()
+        // GET: api/Users
+        [HttpGet]
+        
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return lstUser;
+            return await _context.Users.Where(u => !u.Deleted).ToListAsync();
         }
 
-        [HttpGet("get/{id}")]
-        public ActionResult<User> Get(int id)
+        // GET: api/Users/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = lstUser.FirstOrDefault(u => u.Id == id);
-            if (user == null)
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null || user.Deleted)
             {
                 return NotFound();
             }
+
             return user;
         }
 
-        [HttpPost("create")]
-        public ActionResult<User> Create([FromBody] User user)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, UserViewModel userViewModel)
         {
-            user.Id = lstUser.Count + 1;
-            lstUser.Add(user);
-            return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-        }
-
-        [HttpPut("update/{id}")]
-        public IActionResult Update(int id, [FromBody] User user)
-        {
-            var existingUser = lstUser.FirstOrDefault(u => u.Id == id);
-            if (existingUser == null)
+            if (id <= 0)
             {
-                return NotFound();
+                return BadRequest(new { message = "Invalid User ID." });
             }
-
-            existingUser.Password = user.Password;
-            existingUser.Email = user.Email;
-            existingUser.Phone = user.Phone;
-
-            return NoContent();
-        }
-
-        [HttpDelete("delete/{id}")]
-        public IActionResult Delete(int id)
-        {
-            var user = lstUser.FirstOrDefault(u => u.Id == id);
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
+                return NotFound(new { message = "User not found." });
+            }
+            // Cập nhật các trường cụ thể
+            user.Username = userViewModel.Username;
+            user.FullName = userViewModel.FullName;
+            user.PasswordHash = PasswordHasher.HashPassword(userViewModel.Password);
+            user.Email = userViewModel.Email;
+            user.Phone = userViewModel.Phone;
+            user.UpdatedAt = DateTime.UtcNow;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound(new { message = "User not found." });
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(user);
+        }
+
+
+
+        // DELETE: api/Users/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null || user.Deleted)
+            {
                 return NotFound();
             }
 
-            lstUser.Remove(user);
+            user.Deleted = true;
+            user.UpdatedAt = DateTime.UtcNow;
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            // _context.Users.Remove(user);//Xoá thực sự
+
             return NoContent();
+        }
+
+
+
+
+
+        [HttpPost]
+        public async Task<ActionResult<UserViewModel>> CreateUser(UserViewModel userViewModel)
+        {
+            var us = await _context.Users.SingleOrDefaultAsync(u => u.Email == userViewModel.Email || u.Username == userViewModel.Username);
+            if (us != null)
+            {
+                return Conflict(new { message = "User with this email or username already exists." });
+            }
+            var user = new User
+            {
+                Username = userViewModel.Username,
+                PasswordHash = PasswordHasher.HashPassword(userViewModel.Password),
+                Email = userViewModel.Email,
+                Phone = userViewModel.Phone,
+                Role = Roles.Buyer
+            };
+
+            
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, userViewModel);
+        }
+
+        [HttpPatch("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel changePasswordViewModel)
+        {
+
+            var user = await _context.Users.SingleOrDefaultAsync(user => user.Email == changePasswordViewModel.EmailOrUsername || user.Username == changePasswordViewModel.EmailOrUsername);
+            if (user == null)
+            {
+                return NotFound(new { message = "Current password is incorrect." });
+            }
+
+            // Verify current password
+            if (!PasswordHasher.VerifyPassword(changePasswordViewModel.CurrentPassword, user.PasswordHash))
+            {
+                return BadRequest(new { message = "Current password is incorrect." });
+            }
+
+            // Update to new password
+            user.PasswordHash = PasswordHasher.HashPassword(changePasswordViewModel.NewPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Password changed successfully." });
+        }
+
+        private bool UserExists(int id)
+        {
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }
